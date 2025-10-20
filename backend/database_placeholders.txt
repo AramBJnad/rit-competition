@@ -1,0 +1,82 @@
+
+--- needsController.js ---
+
+1. getNeeds()
+   - Purpose: Fetch all needs from the 'needs' table.
+   - Input: None.
+   - Output: An array of Need objects.
+     - Format: `[{ id: number, name: string, description: string, amount: number }, ...]`
+
+2. searchNeeds(keyword)
+   - Purpose: Find needs where the name or description contains the search keyword.
+   - Input: `keyword` (string).
+   - Output: An array of matching Need objects.
+     - Format: `[{ id: number, name: string, description: string, amount: number }, ...]`
+
+3. getNeedById(needId)
+   - Purpose: Fetch a single need by its primary key.
+   - Input: `needId` (number).
+   - Output: A single Need object or `null` if not found.
+     - Format: `{ id: number, name: string, description: string, amount: number }`
+
+4. addNeed(needData)
+   - Purpose: Insert a new record into the 'needs' table.
+   - Input: `needData` (object) with `{ name: string, description: string, amount: number }`.
+   - Output: The newly created Need object, including its new `id`.
+     - Format: `{ id: number, name: string, description: string, amount: number }`
+
+5. updateNeed(needId, updateData)
+   - Purpose: Update an existing record in the 'needs' table.
+   - Input: `needId` (number), `updateData` (object) with `{ name: string, description: string, amount: number }`.
+   - Output: The updated Need object.
+     - Format: `{ id: number, name: string, description: string, amount: number }`
+
+6. deleteNeed(needId)
+   - Purpose: Delete a record from the 'needs' table.
+   - Input: `needId` (number).
+   - Output: A confirmation object, e.g., `{ success: true, message: 'Need deleted' }`.
+
+7. getFundingBasket(userId)
+   - Purpose: Fetch all needs in a specific user's funding basket. This requires a join between 'users', 'funding_baskets', and 'needs' tables.
+   - Input: `userId` (number).
+   - Output: An array of Need objects in the user's basket.
+     - Format: `[{ id: number, name: string, description: string, amount: number }, ...]`
+
+8. addToFundingBasket(userId, needId)
+   - Purpose: Add an entry to the 'funding_baskets' join table, linking a user to a need.
+   - Input: `userId` (number), `needId` (number).
+   - Output: The newly created basket entry, e.g., `{ id: number, userId: number, needId: number }`.
+
+9. removeFromFundingBasket(userId, needId)
+   - Purpose: Remove an entry from the 'funding_baskets' join table.
+   - Input: `userId` (number), `needId` (number).
+   - Output: A confirmation object, e.g., `{ success: true, message: 'Item removed' }`.
+
+10. checkout(userId)
+    - Purpose: Clear all items from a user's funding basket after funding is processed.
+    - Input: `userId` (number).
+    - Output: A confirmation object, e.g., `{ success: true, itemsCleared: 5 }`.
+
+--- userController.js ---
+
+11. findUserByUsername(username)
+    - Purpose: Retrieve a user from the 'users' table by their username.
+    - Input: `username` (string).
+    - Output: A User object or `null` if not found.
+      - Format: `{ id: number, username: string, role: string }`
+
+12. createSession(userId)
+    - Purpose: Create a new session record in a 'sessions' table, returning a session token.
+    - Input: `userId` (number).
+    - Output: A session object, e.g., `{ sessionId: 'some-unique-token', userId: number, expiresAt: 'timestamp' }`.
+
+13. findUserBySession(sessionId)
+    - Purpose: Retrieve a user's data based on a session token.
+    - Input: `sessionId` (string).
+    - Output: A User object or `null` if the session is invalid or expired.
+      - Format: `{ id: number, username: string, role: string }`
+
+14. deleteSession(sessionId)
+    - Purpose: Invalidate a session by deleting it from the 'sessions' table.
+    - Input: `sessionId` (string).
+    - Output: A confirmation object, e.g., `{ success: true, message: 'Session invalidated' }`.
