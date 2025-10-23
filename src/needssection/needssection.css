@@ -1,0 +1,29 @@
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* For Chrome, Safari, and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* 🌟 NEW/IMPROVED: Mask Image for Fading Edges 🌟 */
+.fade-mask {
+    /* Hide content that exceeds the container boundaries */
+    overflow: hidden;
+    /* Apply the gradient mask */
+    mask-image: linear-gradient(to right,
+            transparent 0%,
+            black 10%,
+            black 90%,
+            transparent 100%);
+    /* Fallback for older Webkit browsers (like older Safari) */
+    -webkit-mask-image: linear-gradient(to right,
+            transparent 0%,
+            black 10%,
+            black 90%,
+            transparent 100%);
+}

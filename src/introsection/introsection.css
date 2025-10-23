@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+.hero-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-image: url('../imgs/img1.jpg');
+    background-size: cover;
+    background-position: center center;
+    color: white;
+}
+
+.hero-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg,
+            rgba(0, 0, 0, 0.2) -10%,
+            rgba(0, 0, 0, 0.4) 20%,
+            rgba(0, 0, 0, 0.6) 100%);
+    z-index: 1;
+
+}
+
+/* 2. Navigation Bar */
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    /* Ensure it's above the overlay and content */
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    padding: 5px;
+}
+
+.donate-btn-nav {
+    background-color: #e5395f;
+    /* The pink color from the image */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+/* 3. Main Content Positioning */
+.hero-content-wrapper {
+    position: relative;
+    /* Needed to respect z-index: 2 for text */
+    z-index: 2;
+    /* Bring text block above the overlay */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Center vertically */
+    align-items: center;
+    /* Center horizontally */
+    text-align: center;
+}
+
+.hero-text-block h1 {
+    font-size: 3.5rem;
+    /* Large font size */
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.hero-text-block p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* 4. CTA Buttons */
+.hero-cta-buttons button {
+    padding: 12px 30px;
+    border: 1px solid white;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.donate-btn-main {
+    background-color: transparent;
+    color: white;
+}
+
+.learn-more-btn {
+    background-color: white;
+    color: #333;
+    /* Dark text on white */
+}
+
+/* 5. Scroll Indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.scroll-arrow {
+    display: block;
+    font-size: 1.5rem;
+    margin-top: 5px;
+}
