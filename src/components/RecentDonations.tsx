@@ -1,5 +1,3 @@
-// src/components/RecentDonations.jsx
-
 import React from 'react';
 
 interface DonationItemProps {
