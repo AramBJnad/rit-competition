@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useAuth } from '../auth/AuthContext';
 
 const resources = [
   { id: 'drone', name: 'Drone Battery Pack', description: 'Powers surveillance drones for 4 hours', price: 90 },
@@ -18,6 +19,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ onClose }) => {
   const [customAmount, setCustomAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false); 
+  const { user } = useAuth();
 
   const toggleItem = (id: string): void => {
     if (isSuccess) return;
@@ -64,6 +66,25 @@ const DonationModal: React.FC<DonationModalProps> = ({ onClose }) => {
       setIsProcessing(false);
       setIsSuccess(true);
       console.log(`Donation of $${totalAmount.toFixed(2)} completed!`);
+      // Try to persist donation to backend (may require logged-in user)
+      (async () => {
+        try {
+          const donorName = user?.username;
+          await fetch('/api/donations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ Amount: totalAmount, Supplies: selectedItems, Donor: donorName || 'Anonymous', CampaignID: null })
+          }).catch(err => console.warn('Donation POST failed', err));
+        } catch (err) {
+          // swallow errors — backend persistence is best-effort here
+        }
+
+        // Notify the app that a donation occurred so other components can update
+        try {
+          window.dispatchEvent(new CustomEvent('donation:completed', { detail: { amount: totalAmount } }));
+        } catch (e) {}
+      })();
     }, 1500);
   };
 

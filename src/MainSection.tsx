@@ -46,6 +46,24 @@ export default function MainSection() {
     return () => { mounted = false; };
   }, []);
 
+  // Listen for global donation events so we can update total raised in real-time
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        // CustomEvent with detail.amount
+        const ce = e as CustomEvent;
+        const amt = Number(ce?.detail?.amount || 0);
+        if (!isNaN(amt) && amt > 0) {
+          setStats(prev => prev ? { ...prev, totalDonations: Number(prev.totalDonations || 0) + amt } : prev);
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    window.addEventListener('donation:completed', handler as EventListener);
+    return () => window.removeEventListener('donation:completed', handler as EventListener);
+  }, []);
+
   const displayed = {
     totalRaised: stats ? formatCurrencyShort(stats.totalDonations) : '$0',
     peopleHelped: stats ? stats.donors.toLocaleString() : '0',
