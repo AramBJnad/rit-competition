@@ -10,7 +10,7 @@ interface AuthModalProps {
 const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState('Login'); // 'Login' or 'Sign Up'
   const { setUser } = useAuth();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   // NOTE: We are using a custom message box instead of alert()
@@ -25,8 +25,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     setLoading(true);
     setMessage('');
 
-    // Use Username field as email for now (component uses email state)
-    const Username = email.trim();
+  // Use Username field
+  const Username = username.trim();
     const Password = password;
 
     try {
@@ -42,9 +42,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
       if (res.ok) {
         // Success: show message, reset inputs
-        const successMessage = data.message || `${activeTab} successful.`;
-        setMessage(successMessage);
-        setEmail('');
+  const successMessage = data.message || `${activeTab} successful.`;
+  setMessage(successMessage);
+  setUsername('');
         setPassword('');
 
         // If signup, attempt auto-login so user is immediately authenticated
@@ -99,13 +99,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
   const handleClose = () => {
     console.log("Modal closed. State reset.");
     setActiveTab('Login');
-    setEmail('');
+    setUsername('');
     setPassword('');
     setMessage('');
     if (onClose) onClose();
   };
 
-  const isFormValid = email.length > 0 && password.length >= 6;
+  const isFormValid = username.length > 0 && password.length >= 6;
 
   return (
     // Overlay: fixed and covers the viewport, centered content, high z-index
@@ -160,24 +160,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           {/* Form */}
           <form onSubmit={handleAuthAction} className="space-y-4">
             
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <div className="mt-1 relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            {/* Username Field */}
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                <div className="mt-1 relative rounded-lg shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="choose a username"
+                    className="block w-full pl-10 pr-4 py-3 border-0 bg-gray-50 rounded-lg text-sm transition-colors focus:bg-white focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
                 </div>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="block w-full pl-10 pr-4 py-3 border-0 bg-gray-50 rounded-lg text-sm transition-colors focus:bg-white focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
               </div>
-            </div>
 
             {/* Password Field */}
             <div>
