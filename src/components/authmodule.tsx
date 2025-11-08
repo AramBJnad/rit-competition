@@ -216,7 +216,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             </button>
           </form>
 
-          {/* Footer Link (Only for Login) */}  
           {activeTab === 'Login' && (
             <div className="mt-4 text-center pb-6">
               <a href="#" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition">
@@ -226,7 +225,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           )}
         </div>
       </div>
-        {/* Custom Keyframe Styles for Toast/Message Box */}
         <style>{`
             @keyframes slide-in {
                 from { transform: translateX(100%); opacity: 0; }
@@ -241,5 +239,4 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 };
 
 
-// --- Direct Default Export ---
 export default AuthModal;

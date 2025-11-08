@@ -1,6 +1,3 @@
-// Lightweight API helper for AdminPanel
-// Uses relative /api paths. If your backend runs on a different host/port
-// set VITE_API_BASE in .env (e.g. VITE_API_BASE=http://localhost:3001)
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 export interface StatsResponse {
