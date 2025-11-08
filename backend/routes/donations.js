@@ -8,7 +8,15 @@ router.get('/', async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    const rows = await conn.query('SELECT * FROM Donations');
+    // Join with Users table to get donor username
+    const rows = await conn.query(`
+      SELECT 
+        d.*,
+        u.Username as DonorUsername
+      FROM Donations d
+      LEFT JOIN Users u ON d.Donor = u.ID
+      ORDER BY d.ID DESC
+    `);
     // Parse Supplies from JSON to array
     const donations = rows.map(donation => {
       let supplies = [];
@@ -26,7 +34,9 @@ router.get('/', async (req, res) => {
       }
       return {
         ...donation,
-        Supplies: supplies
+        Supplies: supplies,
+        // Include both Donor (ID) and DonorUsername for backward compatibility
+        DonorUsername: donation.DonorUsername || 'Anonymous'
       };
     });
     res.json(donations);
@@ -39,7 +49,23 @@ router.get('/', async (req, res) => {
 
 // Create a new donation
 router.post('/', login_required, async (req, res) => {
-  const { Amount, Supplies, Donor, CampaignID } = req.body;
+  const { Amount, Supplies, CampaignID } = req.body;
+  
+  // Get donor ID from session (user must be logged in)
+  if (!req.session || !req.session.user || !req.session.user.id) {
+    return res.status(401).json({ error: 'Authentication required. Please log in.' });
+  }
+  
+  const Donor = req.session.user.id;
+  
+  // Validate required fields
+  if (!Amount || Amount <= 0) {
+    return res.status(400).json({ error: 'Amount is required and must be greater than 0.' });
+  }
+  
+  if (!CampaignID) {
+    return res.status(400).json({ error: 'CampaignID is required.' });
+  }
   
   // Ensure Supplies is an array
   const suppliesArray = Array.isArray(Supplies) ? Supplies : (Supplies ? [Supplies] : []);
@@ -47,6 +73,13 @@ router.post('/', login_required, async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
+    
+    // Verify that the campaign exists
+    const campaignCheck = await conn.query('SELECT ID FROM Campaigns WHERE ID = ?', [CampaignID]);
+    if (campaignCheck.length === 0) {
+      return res.status(404).json({ error: 'Campaign not found.' });
+    }
+    
     // Store Supplies as JSON array
     const result = await conn.query('INSERT INTO Donations (Amount, Supplies, Donor, CampaignID) VALUES (?, ?, ?, ?)', 
       [Amount, JSON.stringify(suppliesArray), Donor, CampaignID]);

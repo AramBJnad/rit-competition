@@ -158,31 +158,67 @@ Endpoint: `/api/donations`
 
 - **Method**: `GET`
 - **Path**: `/`
-- **Description**: Retrieves a list of all donations made.
+- **Description**: Retrieves a list of all donations made, ordered by ID (newest first). Includes donor username from the Users table.
 - **Success Response**:
   - **Code**: `200 OK`
-  - **Content**: `[ { "ID": 1, "Amount": 100.00, "Supplies": ["Water bottles", "blankets"], "Donor": 1, "CampaignID": 1 } ]`
+  - **Content**: 
+    ```json
+    [
+      {
+        "ID": 1,
+        "Amount": 100.00,
+        "Supplies": ["Water bottles", "blankets"],
+        "Donor": 1,
+        "DonorUsername": "testuser",
+        "CampaignID": 1,
+        "CreatedAt": "2025-01-09T10:30:00.000Z"
+      }
+    ]
+    ```
+- **Response Fields**:
+  - `ID` (number): Donation ID
+  - `Amount` (number): Donation amount
+  - `Supplies` (array): Array of supply names as strings
+  - `Donor` (number): User ID of the donor
+  - `DonorUsername` (string): Username of the donor (from Users table JOIN)
+  - `CampaignID` (number): ID of the campaign this donation is for
+  - `CreatedAt` (string, optional): Timestamp when the donation was created
 
 ### Create a New Donation
 
 - **Method**: `POST`
 - **Path**: `/`
-- **Description**: Records a new donation for a specific user and campaign. **(Authentication required)**
+- **Description**: Records a new donation for the currently logged-in user and a specific campaign. **(Authentication required)**
+- **Authentication**: Required (user session)
 - **Request Body**:
   ```json
   {
     "Amount": number,
-    "Supplies": ["string", "string"],  // Array of strings
-    "Donor": number,      // User ID
-    "CampaignID": number  // Campaign ID
+    "Supplies": ["string", "string"],  // Array of strings (optional)
+    "CampaignID": number  // Campaign ID (required)
   }
   ```
+  > **Note**: The `Donor` field is **NOT** included in the request body. The donor ID is automatically retrieved from the authenticated user's session.
 - **Success Response**:
   - **Code**: `201 Created`
-  - **Content**: `{ "id": 1, "Amount": 100.00, "Supplies": ["Water bottles", "blankets"], "Donor": 1, "CampaignID": 1 }`
+  - **Content**: 
+    ```json
+    {
+      "id": 1,
+      "Amount": 100.00,
+      "Supplies": ["Water bottles", "blankets"],
+      "Donor": 1,
+      "CampaignID": 1
+    }
+    ```
 - **Error Response**:
+  - **Code**: `400 Bad Request`
+    - **Content**: `{ "error": "Amount is required and must be greater than 0." }`
+    - **Content**: `{ "error": "CampaignID is required." }`
   - **Code**: `401 Unauthorized`
     - **Content**: `{ "error": "Authentication required. Please log in." }`
+  - **Code**: `404 Not Found`
+    - **Content**: `{ "error": "Campaign not found." }`
   - **Code**: `500 Internal Server Error`
     - **Content**: `{ "error": "Error message" }`
 

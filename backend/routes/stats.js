@@ -15,7 +15,6 @@ router.get('/', async (req, res) => {
     const totalDonations = Number(totalDonationsResult[0].total) || 0;
     
     // Get number of supplies (sum of Supplies array lengths)
-    // Try using JSON_LENGTH function first (MariaDB 10.2.7+)
     let numberOfSupplies = 0;
     try {
       const suppliesResult = await conn.query(
@@ -23,7 +22,7 @@ router.get('/', async (req, res) => {
       );
       numberOfSupplies = Number(suppliesResult[0].total) || 0;
     } catch (e) {
-      // Fallback: manually count if JSON_LENGTH is not available
+      // Fallback
       const donationsResult = await conn.query('SELECT Supplies FROM Donations WHERE Supplies IS NOT NULL');
       donationsResult.forEach(donation => {
         if (donation.Supplies) {
