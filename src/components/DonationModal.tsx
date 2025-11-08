@@ -11,9 +11,10 @@ const resources = [
 
 interface DonationModalProps {
   onClose: () => void;
+  campaignId?: number;
 }
 
-const DonationModal: React.FC<DonationModalProps> = ({ onClose }) => {
+const DonationModal: React.FC<DonationModalProps> = ({ onClose, campaignId }) => {
   const [mode, setMode] = useState('specific');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [customAmount, setCustomAmount] = useState('');
@@ -74,7 +75,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ onClose }) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ Amount: totalAmount, Supplies: selectedItems, Donor: donorName || 'Anonymous', CampaignID: null })
+            body: JSON.stringify({ Amount: totalAmount, Supplies: selectedItems, Donor: donorName || 'Anonymous', CampaignID: campaignId || null })
           }).catch(err => console.warn('Donation POST failed', err));
         } catch (err) {
           // swallow errors — backend persistence is best-effort here

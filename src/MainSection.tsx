@@ -20,44 +20,44 @@ export default function MainSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to load fresh stats from the server
+  const loadStats = async (mounted = true) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/stats', { credentials: 'include' });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data = await res.json();
+      if (mounted) setStats({
+        totalDonations: Number(data.totalDonations || 0),
+        numberOfSupplies: Number(data.numberOfSupplies || 0),
+        donors: Number(data.donors || 0),
+        activeCampaigns: Number(data.activeCampaigns || 0),
+      });
+    } catch (err: any) {
+      console.error('Failed to load stats', err);
+      if (mounted) setError(err.message || 'Failed to load stats');
+    } finally {
+      if (mounted) setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch('/api/stats', { credentials: 'include' });
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const data = await res.json();
-        if (mounted) setStats({
-          totalDonations: Number(data.totalDonations || 0),
-          numberOfSupplies: Number(data.numberOfSupplies || 0),
-          donors: Number(data.donors || 0),
-          activeCampaigns: Number(data.activeCampaigns || 0),
-        });
-      } catch (err: any) {
-        console.error('Failed to load stats', err);
-        if (mounted) setError(err.message || 'Failed to load stats');
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    load();
+    loadStats(mounted);
     return () => { mounted = false; };
   }, []);
 
-  // Listen for global donation events so we can update total raised in real-time
+  // Refresh stats from server when a donation is completed
   useEffect(() => {
-    const handler = (e: Event) => {
+    const handler = async (e: Event) => {
       try {
-        // CustomEvent with detail.amount
-        const ce = e as CustomEvent;
-        const amt = Number(ce?.detail?.amount || 0);
-        if (!isNaN(amt) && amt > 0) {
-          setStats(prev => prev ? { ...prev, totalDonations: Number(prev.totalDonations || 0) + amt } : prev);
-        }
+        // Give the backend a moment to process the donation
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // Fetch fresh stats that include the new donation
+        await loadStats(true);
       } catch (err) {
-        // ignore
+        console.warn('Failed to refresh stats after donation', err);
       }
     };
     window.addEventListener('donation:completed', handler as EventListener);

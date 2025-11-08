@@ -68,7 +68,7 @@ function CampaignsComponent() {
               isCritical: (row.Urgency || '').toLowerCase() === 'critical',
               imageSrc: row.Image || ''
             };
-            return <CampaignCard key={row.ID ?? index} {...campaignProps} />;
+            return <CampaignCard key={row.ID ?? index} {...campaignProps} campaignId={row.ID} />;
           })}
           {loading && <div className="col-span-full text-center text-sm text-gray-500 mt-4">Loading campaigns...</div>}
           {error && <div className="col-span-full text-center text-sm text-red-500 mt-4">Error: {error}</div>}
