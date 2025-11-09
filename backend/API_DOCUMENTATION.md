@@ -19,7 +19,32 @@ Endpoint: `/api/campaigns`
 - **Description**: Retrieves a list of all active campaigns.
 - **Success Response**:
   - **Code**: `200 OK`
-  - **Content**: `[ { "ID": 1, "Title": "Flood Relief", "Location": "Coastal Region", ... } ]`
+  - **Content**: 
+    ```json
+    [
+      {
+        "ID": 1,
+        "Title": "Flood Relief",
+        "Location": "Coastal Region",
+        "Urgency": "Critical",
+        "Description": "Emergency flood relief efforts",
+        "Image": "https://example.com/image.jpg",
+        "Goal": 100000.00,
+        "CurrentAmount": 45000.00,
+        "Due": "2025-12-31"
+      }
+    ]
+    ```
+- **Response Fields**:
+  - `ID` (number): Campaign ID
+  - `Title` (string): Campaign title
+  - `Location` (string): Campaign location
+  - `Urgency` (string): Urgency level (e.g., "Critical")
+  - `Description` (string): Campaign description
+  - `Image` (string): Image URL
+  - `Goal` (number): Fundraising goal amount
+  - `CurrentAmount` (number): Current amount raised (automatically updated when donations are made)
+  - `Due` (string): Campaign deadline date (YYYY-MM-DD format)
 
 ### Create a New Campaign
 
@@ -40,7 +65,21 @@ Endpoint: `/api/campaigns`
   ```
 - **Success Response**:
   - **Code**: `201 Created`
-  - **Content**: `{ "id": 1, "Title": "New Campaign", ... }`
+  - **Content**: 
+    ```json
+    {
+      "id": 1,
+      "Title": "New Campaign",
+      "Location": "Location",
+      "Urgency": "High",
+      "Description": "Campaign description",
+      "Image": "https://example.com/image.jpg",
+      "Goal": 50000.00,
+      "CurrentAmount": 0.00,
+      "Due": "2025-12-31"
+    }
+    ```
+  > **Note**: `CurrentAmount` is automatically set to `0.00` for new campaigns and is updated automatically when donations are made.
 - **Error Response**:
   - **Code**: `401 Unauthorized`
     - **Content**: `{ "error": "Authentication required. Please log in." }`
@@ -53,6 +92,7 @@ Endpoint: `/api/campaigns`
 - **Path**: `/api/campaigns/[id]`
 - **Description**: Updates the details of a specific campaign. **(Admin access required)**
 - **Request Body**: (Same as Create a New Campaign)
+  > **Note**: `CurrentAmount` cannot be updated through this endpoint. It is automatically managed by the donations system and updates when donations are made.
 - **Success Response**:
   - **Code**: `200 OK`
   - **Content**: `{ "message": "Campaign updated successfully." }`

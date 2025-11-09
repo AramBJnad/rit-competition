@@ -9,6 +9,7 @@ type CampaignRow = {
   Description?: string;
   Image?: string;
   Goal?: number;
+  CurrentAmount?: number;
   Due?: string;
   Urgency?: string;
 };
@@ -37,7 +38,19 @@ function CampaignsComponent() {
       }
     };
     load();
-    return () => { mounted = false; };
+
+    // Listen for donation completion events to refresh campaigns
+    const handleDonationCompleted = () => {
+      if (mounted) {
+        load(); // Reload campaigns to get updated CurrentAmount
+      }
+    };
+    window.addEventListener('donation:completed', handleDonationCompleted);
+
+    return () => { 
+      mounted = false;
+      window.removeEventListener('donation:completed', handleDonationCompleted);
+    };
   }, []);
 
   return (
@@ -61,9 +74,9 @@ function CampaignsComponent() {
               location: row.Location || 'Unknown',
               description: row.Description || '',
               update: row.Urgency || 'No updates',
-              raised: 0,
+              raised: Number(row.CurrentAmount || 0), // Use CurrentAmount from database
               goal: Number(row.Goal || 0),
-              supporters: 0,
+              supporters: 0, 
               time: row.Due || 'N/A',
               isCritical: (row.Urgency || '').toLowerCase() === 'critical',
               imageSrc: row.Image || ''

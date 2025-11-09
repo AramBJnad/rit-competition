@@ -80,17 +80,35 @@ router.post('/', login_required, async (req, res) => {
       return res.status(404).json({ error: 'Campaign not found.' });
     }
     
-    // Store Supplies as JSON array
-    const result = await conn.query('INSERT INTO Donations (Amount, Supplies, Donor, CampaignID) VALUES (?, ?, ?, ?)', 
-      [Amount, JSON.stringify(suppliesArray), Donor, CampaignID]);
+    // Start a transaction to ensure both donation and campaign update succeed or fail together
+    await conn.beginTransaction();
     
-    res.status(201).json({ 
-      id: Number(result.insertId), 
-      Amount, 
-      Supplies: suppliesArray, 
-      Donor, 
-      CampaignID 
-    });
+    try {
+      // Store Supplies as JSON array
+      const result = await conn.query('INSERT INTO Donations (Amount, Supplies, Donor, CampaignID) VALUES (?, ?, ?, ?)', 
+        [Amount, JSON.stringify(suppliesArray), Donor, CampaignID]);
+      
+      // Update the campaign's CurrentAmount by adding the donation amount
+      await conn.query(
+        'UPDATE Campaigns SET CurrentAmount = COALESCE(CurrentAmount, 0) + ? WHERE ID = ?',
+        [Amount, CampaignID]
+      );
+      
+      // Commit the transaction
+      await conn.commit();
+      
+      res.status(201).json({ 
+        id: Number(result.insertId), 
+        Amount, 
+        Supplies: suppliesArray, 
+        Donor, 
+        CampaignID 
+      });
+    } catch (err) {
+      // Rollback the transaction on error
+      await conn.rollback();
+      throw err;
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   } finally {

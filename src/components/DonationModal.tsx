@@ -56,37 +56,68 @@ const DonationModal: React.FC<DonationModalProps> = ({ onClose, campaignId }) =>
     onClose();
   };
 
-  const handleCompleteDonation = () => {
+  const handleCompleteDonation = async () => {
     if (totalAmount <= 0) {
       console.error("Donation amount must be greater than $0.00");
       return;
     }
+
+    // Check if user is logged in
+    if (!user) {
+      console.error("You must be logged in to make a donation");
+      return;
+    }
+
+    if (!campaignId) {
+      console.error("Campaign ID is required");
+      return;
+    }
+
     setIsProcessing(true);
 
-    setTimeout(() => {
+    try {
+      // Map selected resource IDs to resource names for the Supplies array
+      const supplies = mode === 'specific' 
+        ? resources.filter(r => selectedItems.includes(r.id)).map(r => r.name)
+        : [];
+
+      const response = await fetch('/api/donations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important: sends session cookie
+        body: JSON.stringify({
+          Amount: totalAmount,
+          Supplies: supplies,
+          CampaignID: campaignId,
+          // Note: Donor ID is automatically retrieved from session by backend
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process donation');
+      }
+
+      // Success!
       setIsProcessing(false);
       setIsSuccess(true);
-      console.log(`Donation of $${totalAmount.toFixed(2)} completed!`);
-      // Try to persist donation to backend (may require logged-in user)
-      (async () => {
-        try {
-          const donorName = user?.username;
-          await fetch('/api/donations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ Amount: totalAmount, Supplies: selectedItems, Donor: donorName || 'Anonymous', CampaignID: campaignId || null })
-          }).catch(err => console.warn('Donation POST failed', err));
-        } catch (err) {
-          // swallow errors — backend persistence is best-effort here
-        }
+      console.log(`Donation of $${totalAmount.toFixed(2)} completed!`, data);
 
-        // Notify the app that a donation occurred so other components can update
-        try {
-          window.dispatchEvent(new CustomEvent('donation:completed', { detail: { amount: totalAmount } }));
-        } catch (e) {}
-      })();
-    }, 1500);
+      // Notify the app that a donation occurred so other components can update
+      try {
+        window.dispatchEvent(new CustomEvent('donation:completed', { 
+          detail: { amount: totalAmount, campaignId: campaignId } 
+        }));
+      } catch (e) {
+        console.warn('Failed to dispatch donation event', e);
+      }
+    } catch (err: any) {
+      console.error('Donation error:', err);
+      setIsProcessing(false);
+    }
   };
 
   const SuccessMessage = ({ amount, onRestart }: { amount: number; onRestart: () => void }) => (
